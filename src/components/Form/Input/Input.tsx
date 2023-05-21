@@ -1,33 +1,37 @@
+import { ChangeEvent, FocusEvent } from 'react';
 import { useState } from 'react';
 import { EyeIcon, EyeSlashIcon } from '@heroicons/react/24/outline'
 
 interface InputTypes {
-
+  value?: string;
   name?: string;
   id?: string;
   nameLabel?: string;
-  type?: 'text' | 'number' | 'password' | 'check' | ''
+  type?: 'text' | 'number' | 'password' | ''
   placeholder?: string;
   isPassword?: boolean;
-  onChange?: () => void;
-  onBlur?: () => void;
+  errorMessage?: string;
+  onChange?: ( e: ChangeEvent<HTMLInputElement> ) => void;
+  onBlur?: ( e: FocusEvent<HTMLInputElement> ) => void;
 
 }
 
 interface InputPasswordProps {
+  value?: string;
   name?: string;
   id?: string;
   nameLabel?: string;
-  type?: 'text' | 'number' | 'password' | 'check' | '';
+  type?: 'text' | 'number' | 'password' | '';
   state?: boolean
   changeState?: () => void;
   placeholder?: string;
   isPassword?: boolean;
-  onChange?: () => void;
-  onBlur?: () => void;
+  errorMessage?: string;
+  onChange?: ( e: ChangeEvent<HTMLInputElement> ) => void;
+  onBlur?: ( e: FocusEvent<HTMLInputElement> ) => void;
 }
 
-const Input = ( { name, id, type, isPassword, placeholder }: InputTypes  ) => {
+const Input = ( { name, id, type, isPassword, placeholder, value, errorMessage, onChange, onBlur }: InputTypes  ) => {
 
   const [ hasVisiblePassword, setHasVisiblePassword  ] = useState(false);
   const changeVisiblePassword = () => {
@@ -36,14 +40,20 @@ const Input = ( { name, id, type, isPassword, placeholder }: InputTypes  ) => {
   return (
     <>
     {
-      isPassword ? <InputPassword placeholder={ placeholder } state={ hasVisiblePassword } changeState={ changeVisiblePassword } />
+      isPassword ? <InputPassword onChange={ onChange } onBlur={ onBlur } errorMessage={ errorMessage } value={ value } name={ name } placeholder={ placeholder } state={ hasVisiblePassword } changeState={ changeVisiblePassword } />
       : (
-      <div className='w-full sm:mb-1 lg:mb-2 xl:mb-3'>
+      <div className='relative w-full sm:mb-1 lg:mb-2 xl:mb-3'>
         <input type={ type } name={name} id={ id }
-        placeholder={ placeholder }
-        className='w-full sm:p-4 sm:text-xl outline-none bg-gray-100 rounded-2xl
-        focus:outline-prussian-blue-400 placeholder:placeholder-gray-800
-        transition-all duration-200 delay-50' />
+        placeholder={ placeholder } value={ value }
+        onChange={ onChange }
+        onBlur={ onBlur }
+        className={`w-full sm:p-4 sm:text-xl outline-none bg-gray-100 rounded-2xl
+         placeholder:placeholder-gray-800
+        transition-all duration-200 delay-50 mb-2 ${ errorMessage ? 'outline-red-700' : 'outline-none focus:outline-prussian-blue-400' }`} />
+        {
+          errorMessage ? <div className='sm:text-sm text-red-700 font-thin'> { errorMessage } </div>
+                : null
+        }
       </div>
       )
     }
@@ -52,14 +62,19 @@ const Input = ( { name, id, type, isPassword, placeholder }: InputTypes  ) => {
 }
 
 
-const InputPassword = ({ name, id, placeholder, state, changeState  }: InputPasswordProps) => { 
+const InputPassword = ({ name, id, placeholder, state, errorMessage, changeState, value, onChange  }: InputPasswordProps) => { 
   return (
-    <div className='relative w-full sm:mb-1 lg:mb-2 xl:mb-3'>
+    <div className='relative w-full'>
         <input type={ `${ state ? 'text' : 'password' }` } name={name} id={ id }
-        placeholder={ placeholder }
-        className='w-full sm:p-4 sm:text-xl outline-none bg-gray-100 rounded-2xl
-        focus:outline-prussian-blue-400 placeholder:placeholder-gray-800
-        transition-all duration-200 delay-50' />
+        placeholder={ placeholder } value={ value }
+        onChange={ onChange }
+        className={`w-full sm:p-4 sm:text-xl outline-none bg-gray-100 rounded-2xl
+         placeholder:placeholder-gray-800
+        transition-all duration-200 delay-50 mb-2 ${ errorMessage ? 'outline-red-700' : 'outline-none focus:outline-prussian-blue-400' }`} />
+        {
+          errorMessage ? <div className='sm:text-sm text-red-700 font-thin'> { errorMessage } </div>
+                       : null
+        }
         <button onClick={ changeState } type='button' >
           {
             state ? <EyeSlashIcon className='absolute right-5 top-5 sm:h-7 sm:w-7 cursor-pointer text-stone-700' />
